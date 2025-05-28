@@ -1,0 +1,129 @@
+{% extends 'translator/base.html' %}
+{% load static %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-primary">
+                <i class="fas fa-language me-3"></i>Traducteur en ligne
+            </h1>
+            <p class="lead">Traduisez instantanément vos textes dans plusieurs langues</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exchange-alt me-2"></i>Traducteur
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form id="translationForm">
+                    <div class="row mb-3">
+                        <div class="col-md-5">
+                            <label for="sourceLanguage" class="form-label">Langue source</label>
+                            <select class="form-select" id="sourceLanguage" required>
+                                <option value="">Choisir une langue...</option>
+                                {% for code, name in languages.items %}
+                                    <option value="{{ code }}" {% if code == 'en' %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button type="button" class="btn btn-outline-primary mt-4" id="swapLanguages">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="targetLanguage" class="form-label">Langue cible</label>
+                            <select class="form-select" id="targetLanguage" required>
+                                <option value="">Choisir une langue...</option>
+                                {% for code, name in languages.items %}
+                                    <option value="{{ code }}" {% if code == 'fr' %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="sourceText" class="form-label">Texte à traduire</label>
+                            <textarea class="form-control" id="sourceText" rows="8" 
+                                placeholder="Saisissez votre texte ici... (Ctrl+Entrée pour traduire)" required></textarea>
+                            <small class="text-muted">
+                                <span id="charCount">0</span> caractères
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="translatedText" class="form-label">Traduction</label>
+                            <textarea class="form-control" id="translatedText" rows="8" 
+                                placeholder="La traduction apparaîtra ici..." readonly></textarea>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="copyBtn" disabled>
+                                    <i class="fas fa-copy me-1"></i>Copier
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearBtn">
+                                    <i class="fas fa-trash me-1"></i>Effacer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-language me-2"></i>Traduire
+                        </button>
+                    </div>
+                </form>
+
+                <div id="loading" class="text-center mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Traduction en cours...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Traduction en cours...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if recent_translations %}
+<div class="row mt-5">
+    <div class="col-12">
+        <h3><i class="fas fa-clock me-2"></i>Traductions récentes</h3>
+        <div class="list-group">
+            {% for translation in recent_translations %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">{{ translation.source_language|upper }} → {{ translation.target_language|upper }}</h6>
+                    <small>{{ translation.created_at|timesince }}</small>
+                </div>
+                <p class="mb-1"><strong>Source:</strong> {{ translation.source_text|truncatechars:100 }}</p>
+                <small><strong>Traduction:</strong> {{ translation.translated_text|truncatechars:100 }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-3">
+            <a href="{% url 'translator:history' %}" class="btn btn-outline-primary">
+                <i class="fas fa-history me-1"></i>Voir tout l'historique
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Astuce :</strong> Utilisez Ctrl+Entrée ou Shift+Entrée pour traduire rapidement depuis la zone de texte.
+        </div>
+    </div>
+</div>
+{% endblock %}

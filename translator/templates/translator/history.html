@@ -1,0 +1,45 @@
+{% extends 'translator/base.html' %}
+
+{% block title %}Historique - Traducteur{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-history me-2"></i>Historique des traductions</h2>
+        
+        {% if translations %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Langues</th>
+                        <th>Texte source</th>
+                        <th>Traduction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for translation in translations %}
+                    <tr>
+                        <td>{{ translation.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ translation.source_language|upper }}</span>
+                            <i class="fas fa-arrow-right mx-1"></i>
+                            <span class="badge bg-success">{{ translation.target_language|upper }}</span>
+                        </td>
+                        <td>{{ translation.source_text|truncatechars:80 }}</td>
+                        <td>{{ translation.translated_text|truncatechars:80 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Aucune traduction dans l'historique pour le moment.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
