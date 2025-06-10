@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 import requests
 import json
 from .models import Translation
 
+@login_required
 def home(request):
     """Vue principale de l'application de traduction"""
-    recent_translations = Translation.objects.all()[:5]
+    recent_translations = Translation.objects.filter(user=request.user)[:5] if hasattr(Translation, 'user') else Translation.objects.all()[:5]
     
     # Langues supportées
     languages = {
@@ -35,11 +37,13 @@ def home(request):
     
     context = {
         'languages': languages,
-        'recent_translations': recent_translations
+        'recent_translations': recent_translations,
+        'user': request.user
     }
     return render(request, 'translator/home.html', context)
 
 @csrf_exempt
+@login_required
 def translate_text(request):
     """API endpoint pour traduire le texte"""
     if request.method == 'POST':
@@ -114,6 +118,7 @@ def translate_text(request):
     
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
+@login_required
 def history(request):
     """Vue pour afficher l'historique des traductions"""
     translations = Translation.objects.all()[:20]
